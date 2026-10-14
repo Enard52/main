@@ -18,11 +18,15 @@ import {
   serializeC2paExport,
   type C2paExport,
 } from './c2pa.js'
+import { createRequire } from 'node:module'
 import { logStructured, redactSensitive } from './logging.js'
+
+const require = createRequire(import.meta.url)
+const { version: CLI_VERSION } = require('../package.json') as { version: string }
 
 // ── CLI argument parsing ──────────────────────────────────────────────────
 
-type Command = 'verify' | 'manifest' | 'hash' | 'verify-receipt' | 'c2pa' | 'help'
+type Command = 'verify' | 'manifest' | 'hash' | 'verify-receipt' | 'c2pa' | 'help' | 'version'
 
 function parseArgs(argv: string[]): {
   command: Command
@@ -30,6 +34,10 @@ function parseArgs(argv: string[]): {
 } {
   if (argv.length < 1) {
     return { command: 'help', flags: {} }
+  }
+
+  if (argv.includes('--version') || argv.includes('-v') || argv[0] === 'version') {
+    return { command: 'version', flags: {} }
   }
 
   const command = argv[0] as Command
@@ -117,6 +125,10 @@ async function main(): Promise<void> {
       return await handleVerifyReceipt(flags, debugLog)
     case 'c2pa':
       return await handleC2pa(flags, debugLog)
+    case 'version':
+      printText(CLI_VERSION)
+      process.exit(0)
+      break
     case 'help':
     default:
       return printHelp()
@@ -415,7 +427,11 @@ Commands:
   hash           Compute the SHA-256 hash of a file.
   verify-receipt Verify an offline signed receipt.
   c2pa           Export C2PA authenticity assertions from a proof manifest.
+  version        Print the installed CLI version and exit.
   help           Show this help message.
+
+Flags:
+  --version, -v  Print the installed CLI version and exit.
 
 C2PA export options:
   --manifest       Path to a proof manifest JSON file (use "-" for stdin; required).

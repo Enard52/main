@@ -7,6 +7,14 @@ video hash on Stellar RPC, and emits a machine-readable receipt with `--output
 json`. It never needs a wallet or signing key; a funded public source address
 is needed for read-only Soroban simulation.
 
+To print the installed version:
+
+```sh
+node dist/cli.js --version
+# or equivalently:
+node dist/cli.js version
+```
+
 ```sh
 node dist/cli.js verify --manifest proof.json \
   --contract-id C... --network 'Test SDF Network ; September 2015' \
